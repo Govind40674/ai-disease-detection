@@ -1,0 +1,300 @@
+/* COMPLETE eye.module.css - Fully responsive + FIXED upload */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #3b82f6, #10b981, #f59e0b, transparent);
+  animation: gradientShine 4s ease-in-out infinite;
+}
+
+@keyframes gradientShine {
+  0%, 100% { transform: translateX(-100%); opacity: 0.8; }
+  50% { transform: translateX(100%); opacity: 1; }
+}
+
+.title {
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin-bottom: 3rem;
+  letter-spacing: -0.03em;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 4px 20px rgba(59, 130, 255, 0.3);
+}
+
+.card {
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(59, 130, 255, 0.25);
+  border-radius: 28px;
+  padding: 3rem 2.5rem;
+  max-width: 550px;
+  width: 100%;
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(59, 130, 255, 0.05), transparent 70%);
+  transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  transition: transform 0.6s;
+}
+
+.card:hover::before {
+  transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+
+/* ✅ FIXED UPLOAD - Entire area now clickable */
+.uploadBox {
+  border: 3px dashed rgba(59, 130, 255, 0.4);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(59, 130, 255, 0.08), rgba(16, 185, 129, 0.08));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  backdrop-filter: blur(10px);
+  display: block;
+}
+
+.uploadBox:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 255, 0.15), rgba(16, 185, 129, 0.15));
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(59, 130, 255, 0.25);
+}
+
+.uploadBox p {
+  margin: 0.5rem 0 0;
+  color: #e2e8f0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.uploadBox p + p {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  font-weight: 400;
+}
+
+/* ✅ FIXED INPUT - Invisible overlay covering entire box */
+.uploadBox input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  margin: 0;
+}
+
+/* Visual upload icon */
+.uploadBox::before {
+  content: '👁️';
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 255, 0.4));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.previewBox {
+  width: 100%;
+  height: clamp(220px, 35vw, 280px);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 3px solid rgba(16, 185, 129, 0.4);
+  margin-bottom: 2.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 255, 0.15));
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.previewBox:hover {
+  transform: scale(1.02);
+  box-shadow: 0 25px 50px rgba(16, 185, 129, 0.3);
+}
+
+.previewBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.previewBox:hover img {
+  transform: scale(1.08);
+}
+
+.btn {
+  width: 100%;
+  padding: 1.25rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 15px 35px rgba(59, 130, 255, 0.4);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.7s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 25px 50px rgba(59, 130, 255, 0.6);
+}
+
+/* ✅ LOADING STATE - Pure CSS spinner */
+.btn:disabled {
+  background: linear-gradient(135deg, #64748b, #475569);
+  cursor: not-allowed;
+  position: relative;
+}
+
+.btn:disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top: 2px solid white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.result {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  border-radius: 20px;
+  text-align: center;
+  backdrop-filter: blur(15px);
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  transition: all 0.4s ease;
+}
+
+/* ✅ ERROR STATE DETECTION */
+.result:has(p[style*="f87171"]) {
+  background: rgba(248, 113, 113, 0.25) !important;
+  border: 2px solid rgba(248, 113, 113, 0.5) !important;
+}
+
+.result p {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  font-weight: 600;
+  position: relative;
+}
+
+.result p span {
+  color: #10b981 !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  text-shadow: 0 2px 10px rgba(16, 185, 129, 0.5);
+}
+
+/* RESPONSIVE - All screen sizes */
+@media (max-width: 480px) {
+  .container { padding: 1.5rem 1rem; }
+  .card { padding: 2rem 1.5rem; margin: 0 0.5rem; border-radius: 24px; }
+  .uploadBox { padding: 2.5rem 1.5rem; }
+  .uploadBox::before { font-size: 2.8rem; }
+  .uploadBox p { font-size: 1.1rem !important; }
+  .previewBox { height: 200px; }
+  .btn { padding: 1.1rem 1.5rem; font-size: 1rem; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .container { padding: 2.5rem 1.5rem; }
+  .card { max-width: 95%; padding: 2.5rem 2rem; }
+}
+
+@media (min-width: 769px) {
+  .container { padding: 4rem 2rem; }
+  .card { max-width: 600px; padding: 3.5rem; }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .container { padding: 1rem; }
+  .card { padding: 2rem 1.5rem; }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
