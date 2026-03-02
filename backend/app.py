@@ -58,6 +58,7 @@ async def predict_eye(file: UploadFile = File(...)):
 async def predict_tb(
     file: UploadFile = File(...),
     age: float = Form(...),
+    
     gender: str = Form(...)
 ):
     # Save uploaded image temporarily
