@@ -18,17 +18,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # -----------------------
 # Eye Cataract Model
 # -----------------------
-eye_model = load_model("model_cataract.keras")
+eye_model = load_model(os.path.join(BASE_DIR, "model_cataract.keras"))
 eye_class_names = ["cataract", "normal"]
 
 # -----------------------
 # Hybrid TB Model
 # -----------------------
-tb_model = load_model("hybrid_tb_model.keras")
-tb_scaler = joblib.load("meta_scaler.pkl")
+tb_model = load_model(os.path.join(BASE_DIR, "hybrid_tb_model.keras"))
+tb_scaler = joblib.load(os.path.join(BASE_DIR, "meta_scaler.pkl"))
+# -----------------------
+# Eye Cataract Model
+# -----------------------
+# eye_model = load_model("model_cataract.keras")
+# eye_class_names = ["cataract", "normal"]
+
+# -----------------------
+# Hybrid TB Model
+# -----------------------
+# tb_model = load_model("hybrid_tb_model.keras")
+# tb_scaler = joblib.load("meta_scaler.pkl")
 IMG_SIZE_TB = 128
 
 # -----------------------
