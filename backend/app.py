@@ -194,7 +194,8 @@ download_file(EYE_MODEL_ID, "model_cataract_tf.h5")
 # LOAD MODELS
 # -------------------------------------------------
 
-eye_model = load_model("model_cataract_tf.h5")
+# eye_model = load_model("model_cataract_tf.h5")
+eye_model = load_model("model_cataract_tf.h5", compile=False)
 eye_class_names = ["cataract", "normal"]
 
 # tb_model = load_model("hybrid_tb_model_tf.h5")
