@@ -169,18 +169,35 @@ SCALER_ID      = os.getenv("SCALER_ID")
 # DOWNLOAD FILES IF NOT PRESENT
 # -------------------------------------------------
 
-download_file(EYE_MODEL_ID, "model_cataract_fixed.h5")
-download_file(TB_MODEL_ID, "hybrid_tb_model_fixed.h5")
+# download_file(EYE_MODEL_ID, "model_cataract_fixed.h5")
+# download_file(TB_MODEL_ID, "hybrid_tb_model_fixed.h5")
+# download_file(SCALER_ID, "meta_scaler.pkl")
+
+# # -------------------------------------------------
+# # LOAD MODELS
+# # -------------------------------------------------
+
+# eye_model = load_model("model_cataract_fixed.h5")
+# eye_class_names = ["cataract", "normal"]
+
+# tb_model = load_model("hybrid_tb_model_fixed.h5")
+# tb_scaler = joblib.load("meta_scaler.pkl")
+# -------------------------------------------------
+# DOWNLOAD FILES IF NOT PRESENT
+# -------------------------------------------------
+
+download_file(EYE_MODEL_ID, "model_cataract_tf.h5")
+download_file(TB_MODEL_ID, "hybrid_tb_model_tf.h5")
 download_file(SCALER_ID, "meta_scaler.pkl")
 
 # -------------------------------------------------
 # LOAD MODELS
 # -------------------------------------------------
 
-eye_model = load_model("model_cataract_fixed.h5")
+eye_model = load_model("model_cataract_tf.h5")
 eye_class_names = ["cataract", "normal"]
 
-tb_model = load_model("hybrid_tb_model_fixed.h5")
+tb_model = load_model("hybrid_tb_model_tf.h5")
 tb_scaler = joblib.load("meta_scaler.pkl")
 
 IMG_SIZE_TB = 128
