@@ -140,8 +140,8 @@ def download_file(file_id, output_path):
 # -------------------------------------------------
 
 EYE_MODEL_ID   = os.getenv("EYE_MODEL_ID")
-TB_MODEL_ID    = os.getenv("TB_MODEL_ID")
-SCALER_ID      = os.getenv("SCALER_ID")
+# TB_MODEL_ID    = os.getenv("TB_MODEL_ID")
+# SCALER_ID      = os.getenv("SCALER_ID")
 
 # -------------------------------------------------
 # DOWNLOAD FILES IF NOT PRESENT
@@ -187,8 +187,8 @@ SCALER_ID      = os.getenv("SCALER_ID")
 # -------------------------------------------------
 
 download_file(EYE_MODEL_ID, "model_cataract_tf.h5")
-download_file(TB_MODEL_ID, "hybrid_tb_model_tf.h5")
-download_file(SCALER_ID, "meta_scaler.pkl")
+# download_file(TB_MODEL_ID, "hybrid_tb_model_tf.h5")
+# download_file(SCALER_ID, "meta_scaler.pkl")
 
 # -------------------------------------------------
 # LOAD MODELS
@@ -197,8 +197,8 @@ download_file(SCALER_ID, "meta_scaler.pkl")
 eye_model = load_model("model_cataract_tf.h5")
 eye_class_names = ["cataract", "normal"]
 
-tb_model = load_model("hybrid_tb_model_tf.h5")
-tb_scaler = joblib.load("meta_scaler.pkl")
+# tb_model = load_model("hybrid_tb_model_tf.h5")
+# tb_scaler = joblib.load("meta_scaler.pkl")
 
 IMG_SIZE_TB = 128
 
@@ -227,30 +227,30 @@ async def predict_eye(file: UploadFile = File(...)):
     }
 
 
-@app.post("/predict/tb")
-async def predict_tb(
-    file: UploadFile = File(...),
-    age: float = Form(...),
-    gender: str = Form(...)
-):
-    temp_path = f"temp_{file.filename}"
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+# @app.post("/predict/tb")
+# async def predict_tb(
+#     file: UploadFile = File(...),
+#     age: float = Form(...),
+#     gender: str = Form(...)
+# ):
+#     temp_path = f"temp_{file.filename}"
+#     with open(temp_path, "wb") as buffer:
+#         shutil.copyfileobj(file.file, buffer)
 
-    img = load_img(temp_path, color_mode="grayscale", target_size=(IMG_SIZE_TB, IMG_SIZE_TB))
-    img_arr = img_to_array(img) / 255.0
-    img_arr = np.expand_dims(img_arr, axis=0)
+#     img = load_img(temp_path, color_mode="grayscale", target_size=(IMG_SIZE_TB, IMG_SIZE_TB))
+#     img_arr = img_to_array(img) / 255.0
+#     img_arr = np.expand_dims(img_arr, axis=0)
 
-    gender_val = 1.0 if gender.lower() in ["m", "male"] else 0.0
-    meta_arr = np.array([[age, gender_val]], dtype=np.float32)
-    meta_arr = tb_scaler.transform(meta_arr)
+#     gender_val = 1.0 if gender.lower() in ["m", "male"] else 0.0
+#     meta_arr = np.array([[age, gender_val]], dtype=np.float32)
+#     meta_arr = tb_scaler.transform(meta_arr)
 
-    prob = float(tb_model.predict([img_arr, meta_arr])[0][0])
-    label = "TB" if prob > 0.5 else "Normal"
+#     prob = float(tb_model.predict([img_arr, meta_arr])[0][0])
+#     label = "TB" if prob > 0.5 else "Normal"
 
-    os.remove(temp_path)
+#     os.remove(temp_path)
 
-    return {
-        "class": label,
-        "confidence": round(prob, 4)
-    }
+#     return {
+#         "class": label,
+#         "confidence": round(prob, 4)
+#     }
