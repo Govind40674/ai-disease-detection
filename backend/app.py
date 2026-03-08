@@ -4,7 +4,11 @@ import numpy as np
 import io
 from PIL import Image
 
-import tensorflow.lite as tflite
+
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    import tensorflow.lite as tflite
 
 app = FastAPI()
 
