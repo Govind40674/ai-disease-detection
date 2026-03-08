@@ -75,6 +75,7 @@ function Chest() {
 
       {result && (
         <div className={styles.result}>
+
           <h2>Result: {result.class}</h2>
           <p>Confidence: {result.confidence}</p>
         </div>

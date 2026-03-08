@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import io
 from PIL import Image
-import tflite_runtime.interpreter as tflite
+
+import tensorflow.lite as tflite
 
 app = FastAPI()
 
