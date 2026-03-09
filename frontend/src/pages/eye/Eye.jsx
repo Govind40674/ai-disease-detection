@@ -49,7 +49,7 @@ function Eye() {
     },
   }
 );
-console.log(res.data);
+console.log( "res",res.data);
       setResult(res.data.class);
       setConfidence(res.data.confidence);
     } catch (err) {
