@@ -35,11 +35,20 @@ function Eye() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await axios.post("http://127.0.0.1:8000/predict/eye", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // const res = await axios.post("http://127.0.0.1:8000/predict/eye", formData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
+      const res = await axios.post(
+  `${import.meta.env.VITE_API_URL}/predict/eye`,
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }
+);
 
       setResult(res.data.class);
       setConfidence(res.data.confidence);
