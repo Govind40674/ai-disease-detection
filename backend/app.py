@@ -1,18 +1,14 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
-import io
 from PIL import Image
-
-
-try:
-    import tflite_runtime.interpreter as tflite
-except ImportError:
-    import tensorflow.lite as tflite
+import tensorflow as tf
+import joblib
+import io
 
 app = FastAPI()
 
-# CORS
+# Allow frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,54 +17,98 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# -----------------------------
-# LOAD TFLITE MODEL
-# -----------------------------
+# -------------------------------
+# Load TFLite Model
+# -------------------------------
 
-interpreter = tflite.Interpreter(model_path="model.tflite")
-interpreter.allocate_tensors()
+tb_interpreter = tf.lite.Interpreter(model_path="model_Chest_Tuber.tflite")
+tb_interpreter.allocate_tensors()
 
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+tb_input_details = tb_interpreter.get_input_details()
+tb_output_details = tb_interpreter.get_output_details()
 
-eye_class_names = ["cataract", "normal"]
+print("TB model loaded successfully")
 
-print("Model loaded successfully")
+# -------------------------------
+# Load metadata scaler
+# -------------------------------
 
-# -----------------------------
-# IMAGE PREPROCESSING
-# -----------------------------
+scaler = joblib.load("meta_scaler.pkl")
+print("Scaler loaded successfully")
+
+
+# -------------------------------
+# Image preprocessing
+# -------------------------------
 
 def preprocess_image(image_bytes):
-    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    img = img.resize((224, 224))
+    img = Image.open(io.BytesIO(image_bytes)).convert("L")  # grayscale
+    img = img.resize((128, 128))
 
-    img_array = np.array(img).astype(np.float32) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+    img_array = np.array(img) / 255.0
 
-    return img_array
+    img_array = np.expand_dims(img_array, axis=-1)  # channel
+    img_array = np.expand_dims(img_array, axis=0)   # batch
+
+    return img_array.astype(np.float32)
 
 
-# -----------------------------
-# PREDICT ROUTE
-# -----------------------------
+# -------------------------------
+# Metadata preprocessing
+# -------------------------------
 
-@app.post("/predict/eye")
-async def predict_eye(file: UploadFile = File(...)):
-    
-    image_bytes = await file.read()
-    img_array = preprocess_image(image_bytes)
+def preprocess_metadata(age, gender):
 
-    interpreter.set_tensor(input_details[0]['index'], img_array)
-    interpreter.invoke()
+    age = float(age)
 
-    pred_probs = interpreter.get_tensor(output_details[0]['index'])[0]
+    if gender.lower() == "m":
+        gender_val = 1
+    else:
+        gender_val = 0
 
-    pred_idx = int(np.argmax(pred_probs))
-    predicted_class = eye_class_names[pred_idx]
-    confidence = float(pred_probs[pred_idx])
+    meta = np.array([[age, gender_val]])
+
+    meta = scaler.transform(meta)
+
+    return meta.astype(np.float32)
+
+
+# -------------------------------
+# TB Prediction API
+# -------------------------------
+
+@app.post("/predict/tb")
+async def predict_tb(
+    file: UploadFile = File(...),
+    age: float = Form(...),
+    gender: str = Form(...)
+):
+
+    contents = await file.read()
+
+    # preprocess image
+    img_array = preprocess_image(contents)
+
+    # preprocess metadata
+    meta_array = preprocess_metadata(age, gender)
+
+    # set tensors
+    tb_interpreter.set_tensor(tb_input_details[0]['index'], img_array)
+    tb_interpreter.set_tensor(tb_input_details[1]['index'], meta_array)
+
+    # run model
+    tb_interpreter.invoke()
+
+    output = tb_interpreter.get_tensor(tb_output_details[0]['index'])
+
+    prob = float(output[0][0])
+
+    if prob > 0.5:
+        label = "Tuberculosis Detected"
+    else:
+        label = "Normal"
 
     return {
-        "class": predicted_class,
-        "confidence": round(confidence, 4)
+        "class": label,
+        "confidence": prob
     }
