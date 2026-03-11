@@ -11,7 +11,7 @@ backend/.venv
 *.h5
 *.pt
 *.onnx
-*.pkl
+# *.pkl
 *.keras
 data/
 datasets/
