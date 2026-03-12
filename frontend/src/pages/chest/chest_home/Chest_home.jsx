@@ -2,8 +2,9 @@ import React from 'react'
 
 import Header from "../../../components/header/Header";
 import { Link } from 'react-router-dom'
-import styles from './Chest_home.module.css'
-import Footer from '../../../components/footer/Footer'
+import styles from './chest_home.module.css'
+// import Footer from '../../../components/footer/Footer'
+import Footer from '../../../components/Footer/Footer'
 
 function Chest_home() {
   return (

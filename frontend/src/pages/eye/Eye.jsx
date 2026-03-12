@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import styles from "./eye.module.css";
+import Footer from "../../components/Footer/Footer";
 
 function Eye() {
   const [file, setFile] = useState(null);
@@ -57,6 +58,7 @@ console.log( "res",res.data);
   };
 
   return (
+    <>
     <div className={styles.container}>
       <h1 className={styles.title}>Eye Disease Detection (Cataract)</h1>
 
@@ -95,6 +97,8 @@ console.log( "res",res.data);
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }
 
