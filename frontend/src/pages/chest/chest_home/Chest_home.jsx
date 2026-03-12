@@ -4,7 +4,7 @@ import Header from "../../../components/header/Header";
 import { Link } from 'react-router-dom'
 import styles from './chest_home.module.css'
 // import Footer from '../../../components/footer/Footer'
-import Footer from '../../../components/Footer/Footer'
+import Footer from '../../../components/footer/Footer'
 
 function Chest_home() {
   return (

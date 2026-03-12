@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import styles from "./eye.module.css";
-import Footer from "../../components/Footer/Footer";
+import Footer from "../../components/footer/Footer";
 
 function Eye() {
   const [file, setFile] = useState(null);

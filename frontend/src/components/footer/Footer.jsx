@@ -1,5 +1,5 @@
 import React from 'react'
-import styles  from  './Footer.module.css'
+import styles  from  './footer.module.css'
 import { FaFacebook, FaTwitter, FaInstagram, FaGithub } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
@@ -61,4 +61,4 @@ function Footer() {
   )
 }
 
-export default Footer
+export default Footer;
