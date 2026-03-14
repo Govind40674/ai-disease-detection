@@ -6,8 +6,11 @@ import styles from "./route.module.css";
 const Home = lazy(() => import("../../pages/home/Home"));
 const Eye = lazy(() => import("../../pages/eye/Eye"));
 const Skin = lazy(() => import("../../pages/skin/Skin"));
-const Tuber = lazy(() => import("../../pages/chest/chest_disease/Tuber"));
+const Tuber = lazy(() => import("../../pages/chest/chest_disease/tuber/Tuber"));
 const Chest_home = lazy(() => import("../../pages/chest/chest_home/Chest_home"));
+const Not_found=lazy(() => import("../../pages/not_found/Not_found"));
+const Kidney_home=lazy(() => import("../../pages/kidney/kidney_home/Kidney_home"));
+const NCTS=lazy(() => import("../../pages/kidney/kidney_disease/NCTS/NCTS"));
 
 function AppRoutes() {
   return (
@@ -26,6 +29,10 @@ function AppRoutes() {
           <Route path="/chest/tuberculosis" element={<Tuber />} />
           <Route path="/eye" element={<Eye />} />
           <Route path="/skin" element={<Skin />} />
+          <Route path="/kidney" element={<Kidney_home />} />
+          <Route path="/kidney/ncts" element={<NCTS />} />
+          
+          <Route path="*" element={<Not_found />} />
         </Routes>
       </Suspense>
     </div>

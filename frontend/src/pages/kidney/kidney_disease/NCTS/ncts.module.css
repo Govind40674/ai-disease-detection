@@ -1,0 +1,143 @@
+.container {
+  min-height: 80vh;
+  width: 100%;
+  max-width: 700px;
+  margin: auto;
+  padding: 40px 20px;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #f7f9fc;
+  border-radius: 12px;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+}
+.imagePreviewBox{
+  margin:20px 0;
+}
+
+.previewImage{
+  width:100%;
+  max-width:300px;
+  border-radius:10px;
+  box-shadow:0px 4px 10px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.fileInput {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.button {
+  padding: 12px 28px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.button:hover {
+  background: #0056b3;
+}
+
+.resultBox {
+  margin-top: 30px;
+  padding: 20px;
+  width: 100%;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+}
+
+.resultBox h2 {
+  margin-bottom: 10px;
+}
+
+.resultBox p {
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+/* ---------------- MOBILE ---------------- */
+
+@media (max-width: 480px) {
+
+  .container {
+    padding: 25px 15px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .resultBox p {
+    font-size: 1rem;
+  }
+
+}
+
+/* ---------------- TABLET ---------------- */
+
+@media (min-width: 481px) and (max-width: 768px) {
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .container {
+    max-width: 600px;
+  }
+
+}
+
+/* ---------------- LAPTOP ---------------- */
+
+@media (min-width: 769px) and (max-width: 1200px) {
+
+  .container {
+    max-width: 650px;
+  }
+
+}
+
+/* ---------------- LARGE SCREEN ---------------- */
+
+@media (min-width: 1201px) {
+
+  .container {
+    max-width: 700px;
+  }
+
+}

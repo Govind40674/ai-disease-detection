@@ -13,9 +13,11 @@ function Header() {
       </div>
       <div className={styles.link}>
         <nav className={styles.nav}>
+          <Link className={styles.link} to="/">Home</Link>
           <Link className={styles.link} to="/chest">Chest X-ray</Link>
           <Link className={styles.link} to="/eye">Eye Disease</Link>
           <Link className={styles.link} to="/skin">Skin Disease</Link>
+          <Link className={styles.link} to="/kidney">Kidney Disease</Link>
         </nav>
       </div>
     </header>

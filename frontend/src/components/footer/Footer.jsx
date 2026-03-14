@@ -8,7 +8,7 @@ function Footer() {
     <>
     <div className={styles.container}>
     <div className={styles.footer}>
-      <p>Copyright © 2024. All rights reserved by Team 4</p>
+      <p>Copyright © 2024. All rights reserved by Team GTB Rewards</p>
     </div>
     <div className={styles.link}>
       <Link to="/" className={styles.linkItem}>Home</Link>
