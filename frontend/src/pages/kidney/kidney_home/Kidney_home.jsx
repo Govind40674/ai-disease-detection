@@ -14,7 +14,7 @@ function Kidney_home() {
       <div className={styles.disease}>
         <div className={styles.disease_card}>
           <img  className={styles.img} src="/ct_scan_kidney.png" alt="chest-xray" />
-          <h2 className={styles.disease_name}>Kidney Disease</h2>
+          <h2 className={styles.disease_name}>Normal-Cyst-Tumor-and Stone</h2>
           <Link to="/kidney/ncts" className={styles.link}>Go to Kidney Disease Detection</Link>
         </div>
       </div>

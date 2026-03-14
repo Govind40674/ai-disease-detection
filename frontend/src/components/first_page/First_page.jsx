@@ -25,6 +25,12 @@ function First_page() {
           <Link className={styles.link} to="/skin">Skin Disease</Link>
         </div>
 
+        <div className={styles.content}>
+          <img src="/ct_scan_kidney.png" alt="kidney" />
+          <h1>AI Disease Detection</h1>
+          <Link className={styles.link} to="/kidney">Kidney Disease</Link>
+        </div>
+
       </div>
     </>
   );
