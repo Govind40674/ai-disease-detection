@@ -8,9 +8,9 @@ import io
 
 app = FastAPI()
 
-# -------------------------------
-# Allow frontend access
-# -------------------------------
+# ---------------------------------------------------
+# Allow Frontend Access
+# ---------------------------------------------------
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,9 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =====================================================
+# ===================================================
 # TB MODEL
-# =====================================================
+# ===================================================
 
 tb_interpreter = tf.lite.Interpreter(model_path="model_Chest_Tuber.tflite")
 tb_interpreter.allocate_tensors()
@@ -32,18 +32,16 @@ tb_output_details = tb_interpreter.get_output_details()
 
 print("TB model loaded successfully")
 
-# -------------------------------
-# Load metadata scaler
-# -------------------------------
+# ---------------------------------------------------
+# Load Metadata Scaler
+# ---------------------------------------------------
 
 scaler = joblib.load("meta_scaler.pkl")
-
 print("Scaler loaded successfully")
 
-
-# =====================================================
+# ===================================================
 # KIDNEY MODEL
-# =====================================================
+# ===================================================
 
 kidney_interpreter = tf.lite.Interpreter(
     model_path="kidney_model_quant.tflite"
@@ -56,10 +54,24 @@ kidney_output_details = kidney_interpreter.get_output_details()
 
 print("Kidney model loaded successfully")
 
+# ===================================================
+# RETINA FUNDUS MODEL
+# ===================================================
 
-# =====================================================
+retina_interpreter = tf.lite.Interpreter(
+    model_path="retinal_fundus_quant.tflite"
+)
+
+retina_interpreter.allocate_tensors()
+
+retina_input_details = retina_interpreter.get_input_details()
+retina_output_details = retina_interpreter.get_output_details()
+
+print("Retina model loaded successfully")
+
+# ===================================================
 # IMAGE PREPROCESSING
-# =====================================================
+# ===================================================
 
 def preprocess_tb_image(image_bytes):
 
@@ -89,9 +101,21 @@ def preprocess_kidney_image(image_bytes):
     return img_array.astype(np.float32)
 
 
-# =====================================================
+def preprocess_retina_image(image_bytes):
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    img = img.resize((224, 224))
+
+    img_array = np.array(img) / 255.0
+
+    img_array = np.expand_dims(img_array, axis=0)
+
+    return img_array.astype(np.float32)
+
+# ===================================================
 # METADATA PREPROCESSING
-# =====================================================
+# ===================================================
 
 def preprocess_metadata(age, gender):
 
@@ -108,10 +132,9 @@ def preprocess_metadata(age, gender):
 
     return meta.astype(np.float32)
 
-
-# =====================================================
+# ===================================================
 # TB PREDICTION API
-# =====================================================
+# ===================================================
 
 @app.post("/predict/tb")
 async def predict_tb(
@@ -154,10 +177,9 @@ async def predict_tb(
         "confidence": prob
     }
 
-
-# =====================================================
+# ===================================================
 # KIDNEY PREDICTION API
-# =====================================================
+# ===================================================
 
 @app.post("/predict/kidney")
 async def predict_kidney(file: UploadFile = File(...)):
@@ -178,6 +200,48 @@ async def predict_kidney(file: UploadFile = File(...)):
     )
 
     classes = ["Cyst", "Normal", "Stone", "Tumor"]
+
+    pred_index = int(np.argmax(output))
+
+    confidence = float(np.max(output))
+
+    label = classes[pred_index]
+
+    return {
+        "class": label,
+        "confidence": confidence
+    }
+
+# ===================================================
+# RETINA FUNDUS PREDICTION API
+# ===================================================
+
+@app.post("/predict/retina")
+async def predict_retina(file: UploadFile = File(...)):
+
+    contents = await file.read()
+
+    img_array = preprocess_retina_image(contents)
+
+    retina_interpreter.set_tensor(
+        retina_input_details[0]['index'],
+        img_array
+    )
+
+    retina_interpreter.invoke()
+
+    output = retina_interpreter.get_tensor(
+        retina_output_details[0]['index']
+    )
+
+    classes = [
+        "ACRIMA",
+        "Glaucoma",
+        "ODIR-5K",
+        "ORIGA",
+        "Cataract",
+        "Retina Disease"
+    ]
 
     pred_index = int(np.argmax(output))
 

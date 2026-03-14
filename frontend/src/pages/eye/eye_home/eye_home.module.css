@@ -1,0 +1,127 @@
+/* Main container */
+.container{
+    width: 100%;
+    min-height: 80vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Heading */
+.heading{
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 600;
+}
+
+/* Disease section */
+.disease{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+/* Card */
+.disease_card{
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.disease_card:hover{
+    transform: translateY(-5px);
+}
+
+/* Image */
+.img{
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* Disease name */
+.disease_name{
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+}
+
+/* Link button */
+.link{
+    display: inline-block;
+    padding: 10px 18px;
+    background: #0077ff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.link:hover{
+    background: #005fd1;
+}
+
+
+/* ========== Responsive Design ========== */
+
+/* Tablets */
+@media (max-width: 1024px){
+
+    .heading{
+        font-size: 1.9rem;
+    }
+
+    .disease_card{
+        width: 280px;
+    }
+
+}
+
+/* Mobile */
+@media (max-width: 768px){
+
+    .container{
+        padding: 30px 15px;
+    }
+
+    .heading{
+        font-size: 1.6rem;
+    }
+
+    .disease_card{
+        width: 90%;
+    }
+
+    .img{
+        max-width: 160px;
+    }
+
+}
+
+/* Small Mobile */
+@media (max-width: 480px){
+
+    .heading{
+        font-size: 1.4rem;
+    }
+
+    .disease_name{
+        font-size: 1.2rem;
+    }
+
+    .link{
+        font-size: 0.85rem;
+        padding: 8px 14px;
+    }
+
+}
