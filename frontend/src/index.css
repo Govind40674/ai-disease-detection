@@ -8,3 +8,7 @@ body {
   margin: 0;
  
 }
+.home-body{
+  background-color: #05132a;
+  min-height: 100vh;
+}
