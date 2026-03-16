@@ -69,6 +69,7 @@ function Retinal_fundus() {
       <h1>Retinal Fundus Disease Detection</h1>
 
       <p>Upload a retinal fundus image to detect eye diseases.</p>
+      <p>Otherwise, its prediction is not accurate.</p>
 
       <input
         type="file"

@@ -72,9 +72,9 @@ function NCTS() {
         </h1>
 
         <p className={styles.subtitle}>
-          Upload Kidney CT Scan Image
+          Note: Please upload a clear CT scan image of the kidney for accurate prediction.
         </p>
-
+       
         <input
           type="file"
           accept="image/*"
