@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import Header from "../../components/header/Header";
 import First_page from '../../components/first_page/First_page'
 import Footer from '../../components/footer/Footer';
-import styles from './home.module.css'
+// import styles from './home.module.css'
 
 function Home() {
 
