@@ -13,8 +13,8 @@ function Skin_home() {
         <div className={styles.disease}>
           <div className={styles.disease_card}>
             <img className={styles.img} src="/skin.png" alt="skin-disease" />
-            <h2 className={styles.disease_name}>Skin Disease Detection</h2>
-            <Link to="/skin/disease_detection" className={styles.link}>Go to skin disease detection</Link>
+            <h2 className={styles.disease_name}>Dermnet</h2>
+            <Link to="/skin/dermnet" className={styles.link}>Go for Dermnet Detection</Link>
           </div>
         </div>
       </div>

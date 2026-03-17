@@ -8,9 +8,9 @@ import io
 
 app = FastAPI()
 
-# ---------------------------------------------------
-# Allow Frontend Access
-# ---------------------------------------------------
+# ===================================================
+# ALLOW FRONTEND ACCESS
+# ===================================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,7 +24,10 @@ app.add_middleware(
 # TB MODEL
 # ===================================================
 
-tb_interpreter = tf.lite.Interpreter(model_path="model_Chest_Tuber.tflite")
+tb_interpreter = tf.lite.Interpreter(
+    model_path="model_Chest_Tuber.tflite"
+)
+
 tb_interpreter.allocate_tensors()
 
 tb_input_details = tb_interpreter.get_input_details()
@@ -32,9 +35,9 @@ tb_output_details = tb_interpreter.get_output_details()
 
 print("TB model loaded successfully")
 
-# ---------------------------------------------------
-# Load Metadata Scaler
-# ---------------------------------------------------
+# ===================================================
+# LOAD METADATA SCALER
+# ===================================================
 
 scaler = joblib.load("meta_scaler.pkl")
 print("Scaler loaded successfully")
@@ -70,6 +73,21 @@ retina_output_details = retina_interpreter.get_output_details()
 print("Retina model loaded successfully")
 
 # ===================================================
+# SKIN DISEASE MODEL (DERMNET)
+# ===================================================
+
+skin_interpreter = tf.lite.Interpreter(
+    model_path="dermnet_quant.tflite"
+)
+
+skin_interpreter.allocate_tensors()
+
+skin_input_details = skin_interpreter.get_input_details()
+skin_output_details = skin_interpreter.get_output_details()
+
+print("Skin disease model loaded successfully")
+
+# ===================================================
 # IMAGE PREPROCESSING
 # ===================================================
 
@@ -102,6 +120,19 @@ def preprocess_kidney_image(image_bytes):
 
 
 def preprocess_retina_image(image_bytes):
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    img = img.resize((224, 224))
+
+    img_array = np.array(img) / 255.0
+
+    img_array = np.expand_dims(img_array, axis=0)
+
+    return img_array.astype(np.float32)
+
+
+def preprocess_skin_image(image_bytes):
 
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
@@ -248,6 +279,65 @@ async def predict_retina(file: UploadFile = File(...)):
     confidence = float(np.max(output))
 
     label = classes[pred_index]
+
+    return {
+        "class": label,
+        "confidence": confidence
+    }
+
+# ===================================================
+# SKIN DISEASE PREDICTION API
+# ===================================================
+
+@app.post("/predict/skin/dermnet")
+async def predict_skin(file: UploadFile = File(...)):
+
+    contents = await file.read()
+
+    img_array = preprocess_skin_image(contents)
+
+    skin_interpreter.set_tensor(
+        skin_input_details[0]['index'],
+        img_array
+    )
+
+    skin_interpreter.invoke()
+
+    output = skin_interpreter.get_tensor(
+        skin_output_details[0]['index']
+    )
+
+    skin_classes = [
+        "Acne and Rosacea Photos",
+        "Actinic Keratosis Basal Cell Carcinoma and other Malignant Lesions",
+        "Atopic Dermatitis Photos",
+        "Bullous Disease Photos",
+        "Cellulitis Impetigo and other Bacterial Infections",
+        "Eczema Photos",
+        "Exanthems and Drug Eruptions",
+        "Hair Loss Photos Alopecia and other Hair Diseases",
+        "Herpes HPV and other STDs Photos",
+        "Light Diseases and Disorders of Pigmentation",
+        "Lupus and other Connective Tissue diseases",
+        "Melanoma Skin Cancer Nevi and Moles",
+        "Nail Fungus and other Nail Disease",
+        "Poison Ivy Photos and other Contact Dermatitis",
+        "Psoriasis pictures Lichen Planus and related diseases",
+        "Scabies Lyme Disease and other Infestations and Bites",
+        "Seborrheic Keratoses and other Benign Tumors",
+        "Systemic Disease",
+        "Tinea Ringworm Candidiasis and other Fungal Infections",
+        "Urticaria Hives",
+        "Vascular Tumors",
+        "Vasculitis Photos",
+        "Warts Molluscum and other Viral Infections"
+    ]
+
+    pred_index = int(np.argmax(output))
+
+    confidence = float(np.max(output))
+
+    label = skin_classes[pred_index]
 
     return {
         "class": label,

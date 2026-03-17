@@ -14,6 +14,7 @@ const NCTS=lazy(() => import("../../pages/kidney/kidney_disease/NCTS/NCTS"));
 const Eye_home=lazy(() => import("../../pages/eye/eye_home/Eye_home"));
 const Retinal_fundus=lazy(() => import("../../pages/eye/eye_disease/retinal_fundus/Retinal_fundus"));
 const Skin_home=lazy(() => import("../../pages/skin/skin_home/Skin_home"));
+const Dermnet=lazy(() => import("../../pages/skin/skin_disease/dermnet/Dermnet"));
 
 function AppRoutes() {
   return (
@@ -35,6 +36,7 @@ function AppRoutes() {
           <Route path="/kidney" element={<Kidney_home />} />
           <Route path="/kidney/ncts" element={<NCTS />} />
           <Route path="/eye/retinal_fundus" element={<Retinal_fundus />} />
+          <Route path="/skin/dermnet" element={<Dermnet />} />
           
           <Route path="*" element={<Not_found />} />
         </Routes>
