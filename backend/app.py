@@ -355,14 +355,21 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from PIL import Image
-import tensorflow as tf
+
+try:
+    from tflite_runtime.interpreter import Interpreter
+    print("✅ Using tflite-runtime")
+except ImportError:
+    import tensorflow as tf
+    Interpreter = tf.lite.Interpreter
+    print("✅ Using TensorFlow Lite")
 import joblib
 import io
 
 app = FastAPI()
 
 # ===================================================
-# CORS
+# CORS (CORRECT)
 # ===================================================
 
 app.add_middleware(
@@ -381,71 +388,66 @@ tb_interpreter = None
 kidney_interpreter = None
 retina_interpreter = None
 skin_interpreter = None
-
 scaler = None
 
 # ===================================================
-# LOAD FUNCTIONS (SAFE)
+# MODEL LOADERS
 # ===================================================
 
 def load_tb_model():
     global tb_interpreter, tb_input_details, tb_output_details
     if tb_interpreter is None:
         try:
-            tb_interpreter = tf.lite.Interpreter(
-                model_path="model_Chest_Tuber.tflite"
-            )
+            print("Loading TB model...")
+            tb_interpreter = Interpreter(model_path="model_Chest_Tuber.tflite")
             tb_interpreter.allocate_tensors()
             tb_input_details = tb_interpreter.get_input_details()
             tb_output_details = tb_interpreter.get_output_details()
             print("TB model loaded")
         except Exception as e:
-            print("TB model error:", e)
+            print("❌ TB ERROR:", e)
 
 
 def load_kidney_model():
     global kidney_interpreter, kidney_input_details, kidney_output_details
     if kidney_interpreter is None:
         try:
-            kidney_interpreter = tf.lite.Interpreter(
-                model_path="kidney_model_quant.tflite"
-            )
+            print("Loading Kidney model...")
+            kidney_interpreter = Interpreter(model_path="kidney_model_quant.tflite")
             kidney_interpreter.allocate_tensors()
             kidney_input_details = kidney_interpreter.get_input_details()
             kidney_output_details = kidney_interpreter.get_output_details()
             print("Kidney model loaded")
         except Exception as e:
-            print("Kidney model error:", e)
+            print("❌ Kidney ERROR:", e)
 
 
 def load_retina_model():
     global retina_interpreter, retina_input_details, retina_output_details
     if retina_interpreter is None:
         try:
-            retina_interpreter = tf.lite.Interpreter(
-                model_path="retinal_fundus_quant.tflite"
-            )
+            print("Loading Retina model...")
+            retina_interpreter = Interpreter(model_path="retinal_fundus_quant.tflite")
             retina_interpreter.allocate_tensors()
             retina_input_details = retina_interpreter.get_input_details()
             retina_output_details = retina_interpreter.get_output_details()
             print("Retina model loaded")
         except Exception as e:
-            print("Retina model error:", e)
+            print("❌ Retina ERROR:", e)
 
 
 def load_skin_model():
     global skin_interpreter, skin_input_details, skin_output_details
     if skin_interpreter is None:
         try:
-            skin_interpreter = tf.lite.Interpreter(
-                model_path="dermnet_quant.tflite"
-            )
+            print("Loading Skin model...")
+            skin_interpreter = Interpreter(model_path="dermnet_quant.tflite")
             skin_interpreter.allocate_tensors()
             skin_input_details = skin_interpreter.get_input_details()
             skin_output_details = skin_interpreter.get_output_details()
             print("Skin model loaded")
         except Exception as e:
-            print("Skin model error:", e)
+            print("❌ Skin ERROR:", e)
 
 
 def load_scaler():
@@ -506,23 +508,28 @@ def preprocess_metadata(age, gender):
 @app.post("/predict/tb")
 async def predict_tb(file: UploadFile = File(...), age: float = Form(...), gender: str = Form(...)):
 
-    load_tb_model()
+    try:
+        load_tb_model()
 
-    contents = await file.read()
-    img_array = preprocess_tb_image(contents)
-    meta_array = preprocess_metadata(age, gender)
+        contents = await file.read()
+        img_array = preprocess_tb_image(contents)
+        meta_array = preprocess_metadata(age, gender)
 
-    tb_interpreter.set_tensor(tb_input_details[0]['index'], img_array)
-    tb_interpreter.set_tensor(tb_input_details[1]['index'], meta_array)
+        tb_interpreter.set_tensor(tb_input_details[0]['index'], img_array)
+        tb_interpreter.set_tensor(tb_input_details[1]['index'], meta_array)
 
-    tb_interpreter.invoke()
+        tb_interpreter.invoke()
 
-    output = tb_interpreter.get_tensor(tb_output_details[0]['index'])
+        output = tb_interpreter.get_tensor(tb_output_details[0]['index'])
 
-    prob = float(output[0][0])
-    label = "Tuberculosis Detected" if prob > 0.5 else "Normal"
+        prob = float(output[0][0])
+        label = "Tuberculosis Detected" if prob > 0.5 else "Normal"
 
-    return {"class": label, "confidence": prob}
+        return {"class": label, "confidence": prob}
+
+    except Exception as e:
+        print("❌ TB ERROR:", e)
+        return {"error": str(e)}
 
 # ===================================================
 # KIDNEY API
@@ -531,46 +538,60 @@ async def predict_tb(file: UploadFile = File(...), age: float = Form(...), gende
 @app.post("/predict/kidney")
 async def predict_kidney(file: UploadFile = File(...)):
 
-    load_kidney_model()
+    try:
+        load_kidney_model()
 
-    contents = await file.read()
-    img_array = preprocess_kidney_image(contents)
+        contents = await file.read()
+        img_array = preprocess_kidney_image(contents)
 
-    kidney_interpreter.set_tensor(kidney_input_details[0]['index'], img_array)
-    kidney_interpreter.invoke()
+        kidney_interpreter.set_tensor(kidney_input_details[0]['index'], img_array)
+        kidney_interpreter.invoke()
 
-    output = kidney_interpreter.get_tensor(kidney_output_details[0]['index'])
+        output = kidney_interpreter.get_tensor(kidney_output_details[0]['index'])
 
-    classes = ["Cyst", "Normal", "Stone", "Tumor"]
+        classes = ["Cyst", "Normal", "Stone", "Tumor"]
 
-    pred_index = int(np.argmax(output))
-    confidence = float(np.max(output))
+        pred_index = int(np.argmax(output))
+        confidence = float(np.max(output))
 
-    return {"class": classes[pred_index], "confidence": confidence}
+        return {"class": classes[pred_index], "confidence": confidence}
+
+    except Exception as e:
+        print("❌ Kidney ERROR:", e)
+        return {"error": str(e)}
 
 # ===================================================
-# RETINA API
+# RETINA API (FIXED)
 # ===================================================
 
 @app.post("/predict/retina")
 async def predict_retina(file: UploadFile = File(...)):
 
-    load_retina_model()
+    try:
+        load_retina_model()
 
-    contents = await file.read()
-    img_array = preprocess_retina_image(contents)
+        contents = await file.read()
+        img_array = preprocess_retina_image(contents)
 
-    retina_interpreter.set_tensor(retina_input_details[0]['index'], img_array)
-    retina_interpreter.invoke()
+        print("Input shape:", img_array.shape)
 
-    output = retina_interpreter.get_tensor(retina_output_details[0]['index'])
+        retina_interpreter.set_tensor(retina_input_details[0]['index'], img_array)
+        retina_interpreter.invoke()
 
-    classes = ["ACRIMA", "Glaucoma", "ODIR-5K", "ORIGA", "Cataract", "Retina Disease"]
+        output = retina_interpreter.get_tensor(retina_output_details[0]['index'])
 
-    pred_index = int(np.argmax(output))
-    confidence = float(np.max(output))
+        print("Output:", output)
 
-    return {"class": classes[pred_index], "confidence": confidence}
+        classes = ["ACRIMA", "Glaucoma", "ODIR-5K", "ORIGA", "Cataract", "Retina Disease"]
+
+        pred_index = int(np.argmax(output))
+        confidence = float(np.max(output))
+
+        return {"class": classes[pred_index], "confidence": confidence}
+
+    except Exception as e:
+        print("❌ RETINA ERROR:", e)
+        return {"error": str(e)}
 
 # ===================================================
 # SKIN API
@@ -579,27 +600,32 @@ async def predict_retina(file: UploadFile = File(...)):
 @app.post("/predict/skin/dermnet")
 async def predict_skin(file: UploadFile = File(...)):
 
-    load_skin_model()
+    try:
+        load_skin_model()
 
-    contents = await file.read()
-    img_array = preprocess_skin_image(contents)
+        contents = await file.read()
+        img_array = preprocess_skin_image(contents)
 
-    skin_interpreter.set_tensor(skin_input_details[0]['index'], img_array)
-    skin_interpreter.invoke()
+        skin_interpreter.set_tensor(skin_input_details[0]['index'], img_array)
+        skin_interpreter.invoke()
 
-    output = skin_interpreter.get_tensor(skin_output_details[0]['index'])
+        output = skin_interpreter.get_tensor(skin_output_details[0]['index'])
 
-    classes = [
-        "Acne", "Actinic Keratosis", "Atopic Dermatitis", "Bullous Disease",
-        "Cellulitis", "Eczema", "Drug Eruptions", "Hair Loss",
-        "Herpes HPV", "Pigmentation Disorders", "Lupus",
-        "Melanoma", "Nail Disease", "Contact Dermatitis",
-        "Psoriasis", "Scabies", "Benign Tumors",
-        "Systemic Disease", "Fungal Infection", "Urticaria",
-        "Vascular Tumors", "Vasculitis", "Warts"
-    ]
+        classes = [
+            "Acne", "Actinic Keratosis", "Atopic Dermatitis", "Bullous Disease",
+            "Cellulitis", "Eczema", "Drug Eruptions", "Hair Loss",
+            "Herpes HPV", "Pigmentation Disorders", "Lupus",
+            "Melanoma", "Nail Disease", "Contact Dermatitis",
+            "Psoriasis", "Scabies", "Benign Tumors",
+            "Systemic Disease", "Fungal Infection", "Urticaria",
+            "Vascular Tumors", "Vasculitis", "Warts"
+        ]
 
-    pred_index = int(np.argmax(output))
-    confidence = float(np.max(output))
+        pred_index = int(np.argmax(output))
+        confidence = float(np.max(output))
 
-    return {"class": classes[pred_index], "confidence": confidence}
+        return {"class": classes[pred_index], "confidence": confidence}
+
+    except Exception as e:
+        print("❌ Skin ERROR:", e)
+        return {"error": str(e)}
