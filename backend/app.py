@@ -355,6 +355,12 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from PIL import Image
+import joblib
+import io
+
+# ===================================================
+# INTERPRETER (WORKS BOTH LOCAL + RENDER)
+# ===================================================
 
 try:
     from tflite_runtime.interpreter import Interpreter
@@ -363,13 +369,11 @@ except ImportError:
     import tensorflow as tf
     Interpreter = tf.lite.Interpreter
     print("✅ Using TensorFlow Lite")
-import joblib
-import io
 
 app = FastAPI()
 
 # ===================================================
-# CORS (CORRECT)
+# CORS
 # ===================================================
 
 app.add_middleware(
@@ -381,7 +385,7 @@ app.add_middleware(
 )
 
 # ===================================================
-# GLOBAL VARIABLES (LAZY LOADING)
+# GLOBAL VARIABLES
 # ===================================================
 
 tb_interpreter = None
@@ -391,70 +395,98 @@ skin_interpreter = None
 scaler = None
 
 # ===================================================
-# MODEL LOADERS
+# MODEL LOADERS (FIXED)
 # ===================================================
 
 def load_tb_model():
     global tb_interpreter, tb_input_details, tb_output_details
+
     if tb_interpreter is None:
         try:
             print("Loading TB model...")
-            tb_interpreter = Interpreter(model_path="model_Chest_Tuber.tflite")
+            tb_interpreter = Interpreter(model_path="./model_Chest_Tuber.tflite")
             tb_interpreter.allocate_tensors()
+
             tb_input_details = tb_interpreter.get_input_details()
             tb_output_details = tb_interpreter.get_output_details()
-            print("TB model loaded")
+
+            print("✅ TB model loaded")
+
         except Exception as e:
             print("❌ TB ERROR:", e)
+            tb_interpreter = None
+            raise e
 
 
 def load_kidney_model():
     global kidney_interpreter, kidney_input_details, kidney_output_details
+
     if kidney_interpreter is None:
         try:
             print("Loading Kidney model...")
-            kidney_interpreter = Interpreter(model_path="kidney_model_quant.tflite")
+            kidney_interpreter = Interpreter(model_path="./kidney_model_quant.tflite")
             kidney_interpreter.allocate_tensors()
+
             kidney_input_details = kidney_interpreter.get_input_details()
             kidney_output_details = kidney_interpreter.get_output_details()
-            print("Kidney model loaded")
+
+            print("✅ Kidney model loaded")
+
         except Exception as e:
             print("❌ Kidney ERROR:", e)
+            kidney_interpreter = None
+            raise e
 
 
 def load_retina_model():
     global retina_interpreter, retina_input_details, retina_output_details
+
     if retina_interpreter is None:
         try:
             print("Loading Retina model...")
-            retina_interpreter = Interpreter(model_path="retinal_fundus_quant.tflite")
+
+            retina_interpreter = Interpreter(
+                model_path="./retinal_fundus_quant.tflite"
+            )
+
             retina_interpreter.allocate_tensors()
+
             retina_input_details = retina_interpreter.get_input_details()
             retina_output_details = retina_interpreter.get_output_details()
-            print("Retina model loaded")
+
+            print("✅ Retina model loaded")
+
         except Exception as e:
-            print("❌ Retina ERROR:", e)
+            print("❌ Retina model failed:", e)
+            retina_interpreter = None
+            raise e  # 🔥 VERY IMPORTANT
 
 
 def load_skin_model():
     global skin_interpreter, skin_input_details, skin_output_details
+
     if skin_interpreter is None:
         try:
             print("Loading Skin model...")
-            skin_interpreter = Interpreter(model_path="dermnet_quant.tflite")
+            skin_interpreter = Interpreter(model_path="./dermnet_quant.tflite")
             skin_interpreter.allocate_tensors()
+
             skin_input_details = skin_interpreter.get_input_details()
             skin_output_details = skin_interpreter.get_output_details()
-            print("Skin model loaded")
+
+            print("✅ Skin model loaded")
+
         except Exception as e:
             print("❌ Skin ERROR:", e)
+            skin_interpreter = None
+            raise e
 
 
 def load_scaler():
     global scaler
     if scaler is None:
         scaler = joblib.load("meta_scaler.pkl")
-        print("Scaler loaded")
+        print("✅ Scaler loaded")
 
 # ===================================================
 # PREPROCESSING
@@ -511,6 +543,9 @@ async def predict_tb(file: UploadFile = File(...), age: float = Form(...), gende
     try:
         load_tb_model()
 
+        if tb_interpreter is None:
+            return {"error": "TB model failed to load"}
+
         contents = await file.read()
         img_array = preprocess_tb_image(contents)
         meta_array = preprocess_metadata(age, gender)
@@ -541,6 +576,9 @@ async def predict_kidney(file: UploadFile = File(...)):
     try:
         load_kidney_model()
 
+        if kidney_interpreter is None:
+            return {"error": "Kidney model failed to load"}
+
         contents = await file.read()
         img_array = preprocess_kidney_image(contents)
 
@@ -570,15 +608,24 @@ async def predict_retina(file: UploadFile = File(...)):
     try:
         load_retina_model()
 
+        if retina_interpreter is None:
+            return {"error": "Retina model failed to load"}
+
         contents = await file.read()
         img_array = preprocess_retina_image(contents)
 
         print("Input shape:", img_array.shape)
 
-        retina_interpreter.set_tensor(retina_input_details[0]['index'], img_array)
+        retina_interpreter.set_tensor(
+            retina_input_details[0]['index'],
+            img_array
+        )
+
         retina_interpreter.invoke()
 
-        output = retina_interpreter.get_tensor(retina_output_details[0]['index'])
+        output = retina_interpreter.get_tensor(
+            retina_output_details[0]['index']
+        )
 
         print("Output:", output)
 
@@ -602,6 +649,9 @@ async def predict_skin(file: UploadFile = File(...)):
 
     try:
         load_skin_model()
+
+        if skin_interpreter is None:
+            return {"error": "Skin model failed to load"}
 
         contents = await file.read()
         img_array = preprocess_skin_image(contents)
