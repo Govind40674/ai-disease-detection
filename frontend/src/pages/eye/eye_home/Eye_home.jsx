@@ -15,6 +15,8 @@ function Eye_home() {
         <div className={styles.disease_card}>
           <img  className={styles.img} src="/retinal_fundus.png" alt="retinal-fundus" />
           <h2 className={styles.disease_name}>Retinal Fundus Image</h2>
+          <h3 className={styles.disease_subheading}>Disease Categories:</h3>
+          <p className={styles.description}>ACRIMA, Glaucoma, ODIR-5K, ORIGA, cataract,retina_disease</p>
           <Link to="/eye/retinal_fundus" className={styles.link}>Go to eye disease detection</Link>
         </div>
       </div>
