@@ -22,16 +22,21 @@ function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         
+        {/* Title */}
         <h1 className={styles.title}>AI Disease Prediction</h1>
 
+        {/* Hamburger Menu */}
         <div className={styles.menu} ref={menuRef}>
           <button
             onClick={() => setOpen(!open)}
             className={styles.menuBtn}
           >
-            ⋮
+            <span className={styles.bar}></span>
+            <span className={styles.bar}></span>
+            <span className={styles.bar}></span>
           </button>
 
+          {/* Dropdown */}
           <div className={`${styles.dropdown} ${open ? styles.show : ""}`}>
             <Link to="/" onClick={() => setOpen(false)}>Home</Link>
             <Link to="/chest" onClick={() => setOpen(false)}>Chest X-ray</Link>

@@ -1,4 +1,4 @@
-/* Header with glass effect */
+/* Header */
 .header {
   width: 100%;
   padding: 12px 16px;
@@ -33,27 +33,42 @@
   right: 10px;
 }
 
-/* Button */
+/* Hamburger Button */
 .menuBtn {
   background: none;
   border: none;
-  color: white;
-  font-size: 26px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.menuBtn:hover {
-  transform: scale(1.2);
+/* Bars */
+.bar {
+  width: 24px;
+  height: 2px;
+  background: white;
+  transition: all 0.3s ease;
 }
 
-/* Dropdown (hidden by default) */
+/* Animate to X when open */
+.menuBtn.open .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.menuBtn.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.menuBtn.open .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Dropdown */
 .dropdown {
   position: absolute;
   right: 0;
   top: 45px;
 
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
 
   border-radius: 12px;
@@ -63,7 +78,6 @@
   display: flex;
   flex-direction: column;
 
-  /* animation */
   opacity: 0;
   transform: translateY(-10px);
   pointer-events: none;
@@ -87,7 +101,6 @@
   color: black;
   padding: 10px 16px;
   font-size: 14px;
-  transition: background 0.2s;
 }
 
 .dropdown a:hover {
@@ -102,8 +115,8 @@
     font-size: 18px;
   }
 
-  .menuBtn {
-    font-size: 22px;
+  .bar {
+    width: 20px;
   }
 
   .dropdown {
