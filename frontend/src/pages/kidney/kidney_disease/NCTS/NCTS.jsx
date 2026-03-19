@@ -37,20 +37,14 @@ function NCTS() {
 
       setLoading(true);
 
-      // const response = await fetch(
-      //   "http://127.0.0.1:8000/predict/kidney",
-      //   {
-      //     method: "POST",
-      //     body: formData
-      //   }
-      // );
+      
       const response=await axios.post(`${import.meta.env.VITE_API_URL}/predict/kidney`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
 
-      const data = await response.json();
+      const data = response.data;
 
       setResult(data);
       setLoading(false);
