@@ -260,12 +260,12 @@ async def predict_skin(file: UploadFile = File(...)):
         print("❌ Skin ERROR:", e)
         return {"error": str(e)}
     
-    
+
 
 
    
 
- import os
+import os
 
 if __name__ == "__main__":
     import uvicorn
