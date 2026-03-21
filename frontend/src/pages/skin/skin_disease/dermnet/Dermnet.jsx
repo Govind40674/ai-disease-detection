@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import styles from "./dermnet.module.css";
 import Header from "../../../../components/header/Header";
 import Footer from "../../../../components/footer/Footer";
@@ -36,15 +37,21 @@ function Dermnet() {
 
     try {
 
-      const response = await fetch(
-        "http://localhost:8000/predict/skin/dermnet",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      // const response = await fetch(
+      //   "http://localhost:8000/predict/skin/dermnet",
+      //   {
+      //     method: "POST",
+      //     body: formData,
+      //   }
+      // );
+      const response=await axios.post(`${import.meta.env.VITE_API_URL}/predict/skin/dermnet`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
 
-      const data = await response.json();
+
+      const data = await response.data;
 
       setResult(data.class);
       setConfidence((data.confidence * 100).toFixed(2));
