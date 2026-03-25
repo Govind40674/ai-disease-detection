@@ -99,7 +99,7 @@ function Retinal_fundus() {
           </div>
         )}
 
-        <button onClick={handleSubmit}>
+        <button className={styles.open} onClick={handleSubmit}>
           Predict Disease
         </button>
 

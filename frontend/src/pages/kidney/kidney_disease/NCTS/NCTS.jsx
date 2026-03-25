@@ -87,9 +87,9 @@ function NCTS() {
           </div>
         )}
 
-        <button
+        <button 
           onClick={handleSubmit}
-          className={styles.button}
+          className={styles.open}
         >
           Predict
         </button>

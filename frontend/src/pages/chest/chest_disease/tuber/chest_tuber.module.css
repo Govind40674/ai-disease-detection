@@ -70,8 +70,7 @@
 }
 
 /* Button */
-
-button{
+.open{
   padding:12px 30px;
   border:none;
   border-radius:8px;
@@ -82,11 +81,11 @@ button{
   transition:0.3s;
 }
 
-button:hover{
+.open:hover{
   background:#0056b3;
 }
 
-button:disabled{
+.open:disabled{
   background:#9aa4b0;
   cursor:not-allowed;
 }

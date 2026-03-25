@@ -61,7 +61,7 @@ box-shadow:0 4px 10px rgba(0,0,0,0.1);
 
 /* Predict button */
 
-button{
+.open{
 padding:12px 30px;
 background:#2a7cff;
 color:white;
@@ -72,7 +72,7 @@ cursor:pointer;
 transition:0.3s;
 }
 
-button:hover{
+.open:hover{
 background:#1f5edb;
 }
 

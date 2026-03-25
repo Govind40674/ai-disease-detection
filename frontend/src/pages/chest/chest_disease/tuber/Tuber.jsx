@@ -73,7 +73,7 @@ function Tuber() {
         </select>
       </div>
 
-      <button onClick={handlePredict} disabled={loading}>
+      <button  className={styles.open}onClick={handlePredict} disabled={loading}>
         {loading ? "Predicting..." : "Check TB"}
       </button>
 
