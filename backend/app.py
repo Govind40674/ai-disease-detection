@@ -4,8 +4,7 @@ import numpy as np
 from PIL import Image
 import joblib
 import io
-import os
-import tensorflow.lite as tflite   # ✅ safer
+import tensorflow.lite as tflite
 
 # ===================================================
 # APP INIT
@@ -29,6 +28,7 @@ tb_interpreter = None
 kidney_interpreter = None
 retina_interpreter = None
 skin_interpreter = None
+chest14_interpreter = None
 scaler = None
 
 # ===================================================
@@ -54,15 +54,13 @@ def load_kidney_model():
 
     if kidney_interpreter is None:
         print("Loading Kidney model...")
-        kidney_interpreter = tflite.Interpreter(model_path="./kidney_model.tflite")  # ✅ FIXED
+        kidney_interpreter = tflite.Interpreter(model_path="./kidney_model.tflite")
         kidney_interpreter.allocate_tensors()
 
         kidney_input_details = kidney_interpreter.get_input_details()
         kidney_output_details = kidney_interpreter.get_output_details()
 
         print("✅ Kidney model loaded")
-        print("Input:", kidney_input_details)
-        print("Output:", kidney_output_details)
 
 
 def load_retina_model():
@@ -70,15 +68,13 @@ def load_retina_model():
 
     if retina_interpreter is None:
         print("Loading Retina model...")
-        retina_interpreter = tflite.Interpreter(model_path="./retinal_fundus.tflite")  # ✅ FIXED
+        retina_interpreter = tflite.Interpreter(model_path="./retinal_fundus.tflite")
         retina_interpreter.allocate_tensors()
 
         retina_input_details = retina_interpreter.get_input_details()
         retina_output_details = retina_interpreter.get_output_details()
 
         print("✅ Retina model loaded")
-        print("Input:", retina_input_details)
-        print("Output:", retina_output_details)
 
 
 def load_skin_model():
@@ -95,12 +91,25 @@ def load_skin_model():
         print("✅ Skin model loaded")
 
 
+def load_chest14_model():
+    global chest14_interpreter, chest14_input_details, chest14_output_details
+
+    if chest14_interpreter is None:
+        print("Loading Chest14 model...")
+        chest14_interpreter = tflite.Interpreter(model_path="./chest_14.tflite")
+        chest14_interpreter.allocate_tensors()
+
+        chest14_input_details = chest14_interpreter.get_input_details()
+        chest14_output_details = chest14_interpreter.get_output_details()
+
+        print("✅ Chest14 model loaded")
+
+
 def load_scaler():
     global scaler
     if scaler is None:
         scaler = joblib.load("meta_scaler.pkl")
         print("✅ Scaler loaded")
-
 
 # ===================================================
 # PREPROCESSING
@@ -136,7 +145,6 @@ def preprocess_metadata(age, gender):
 
     return meta.astype(np.float32)
 
-
 # ===================================================
 # TB API
 # ===================================================
@@ -166,7 +174,6 @@ async def predict_tb(file: UploadFile = File(...), age: float = Form(...), gende
         print("❌ TB ERROR:", e)
         return {"error": str(e)}
 
-
 # ===================================================
 # KIDNEY API
 # ===================================================
@@ -195,7 +202,6 @@ async def predict_kidney(file: UploadFile = File(...)):
         print("❌ Kidney ERROR:", e)
         return {"error": str(e)}
 
-
 # ===================================================
 # RETINA API
 # ===================================================
@@ -221,9 +227,8 @@ async def predict_retina(file: UploadFile = File(...)):
         return {"class": classes[pred], "confidence": conf}
 
     except Exception as e:
-        print("❌ RETINA ERROR:", e)
+        print("❌ Retina ERROR:", e)
         return {"error": str(e)}
-
 
 # ===================================================
 # SKIN API
@@ -260,9 +265,47 @@ async def predict_skin(file: UploadFile = File(...)):
     except Exception as e:
         print("❌ Skin ERROR:", e)
         return {"error": str(e)}
-    
 
+# ===================================================
+# CHEST14 API (NEW)
+# ===================================================
 
+@app.post("/predict/chest14")
+async def predict_chest14(file: UploadFile = File(...)):
+    try:
+        load_chest14_model()
 
-   
+        contents = await file.read()
+        img = preprocess_image(contents, (224, 224))
 
+        chest14_interpreter.set_tensor(chest14_input_details[0]['index'], img)
+        chest14_interpreter.invoke()
+
+        output = chest14_interpreter.get_tensor(chest14_output_details[0]['index'])
+
+        label_columns = [
+            'Atelectasis','Cardiomegaly','Consolidation','Edema','Effusion',
+            'Emphysema','Fibrosis','Hernia','Infiltration','Mass',
+            'Nodule','Pleural_Thickening','Pneumonia','Pneumothorax'
+        ]
+
+        probs = output[0]
+
+        threshold = 0.4
+        results = []
+
+        for i, prob in enumerate(probs):
+            if prob > threshold:
+                results.append({
+                    "disease": label_columns[i],
+                    "confidence": float(prob)
+                })
+
+        return {
+            "predictions": results,
+            "raw": probs.tolist()
+        }
+
+    except Exception as e:
+        print("❌ Chest14 ERROR:", e)
+        return {"error": str(e)}
